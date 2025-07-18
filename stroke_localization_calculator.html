@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora de Localización de Ictus</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+        
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            padding: 30px;
+        }
+        
+        .symptoms-panel {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 25px;
+            border: 2px solid #e9ecef;
+        }
+        
+        .results-panel {
+            background: #fff;
+            border-radius: 10px;
+            padding: 25px;
+            border: 2px solid #e9ecef;
+            min-height: 400px;
+        }
+        
+        .symptom-category {
+            margin-bottom: 25px;
+        }
+        
+        .symptom-category h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 5px;
+        }
+        
+        .symptom-group {
+            margin-bottom: 15px;
+        }
+        
+        .symptom-group label {
+            font-weight: 600;
+            color: #34495e;
+            margin-bottom: 8px;
+            display: block;
+        }
+        
+        select {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #bdc3c7;
+            border-radius: 5px;
+            font-size: 1em;
+            background: white;
+            transition: border-color 0.3s;
+        }
+        
+        select:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+        
+        .calculate-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.2em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            margin-top: 20px;
+        }
+        
+        .calculate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(39, 174, 96, 0.3);
+        }
+        
+        .result-item {
+            background: #f8f9fa;
+            border-left: 4px solid #3498db;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 5px;
+        }
+        
+        .result-item h4 {
+            color: #2c3e50;
+            margin-bottom: 8px;
+            font-size: 1.2em;
+        }
+        
+        .result-item p {
+            color: #34495e;
+            line-height: 1.6;
+        }
+        
+        .probability {
+            font-weight: bold;
+            color: #e74c3c;
+        }
+        
+        .warning {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 5px;
+            padding: 15px;
+            margin-bottom: 20px;
+            color: #856404;
+        }
+        
+        .warning h4 {
+            margin-bottom: 8px;
+            color: #b7950b;
+        }
+        
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🧠 Calculadora de Localización de Ictus</h1>
+            <p>Herramienta de apoyo para correlación clínica de síntomas neurológicos</p>
+        </div>
+        
+        <div class="main-content">
+            <div class="symptoms-panel">
+                <div class="warning">
+                    <h4>⚠️ Importante</h4>
+                    <p>Esta herramienta es solo de apoyo clínico. No sustituye el juicio médico ni la evaluación completa del paciente.</p>
+                </div>
+                
+                <div class="symptom-category">
+                    <h3>Síntomas Motores</h3>
+                    <div class="symptom-group">
+                        <label>Paresia/Plejía:</label>
+                        <select id="paresis">
+                            <option value="">Seleccionar...</option>
+                            <option value="hemiparesis_derecha">Hemiparesia derecha</option>
+                            <option value="hemiparesis_izquierda">Hemiparesia izquierda</option>
+                            <option value="monoparesis_brazo_der">Monoparesia brazo derecho</option>
+                            <option value="monoparesis_brazo_izq">Monoparesia brazo izquierdo</option>
+                            <option value="monoparesis_pierna_der">Monoparesia pierna derecha</option>
+                            <option value="monoparesis_pierna_izq">Monoparesia pierna izquierda</option>
+                            <option value="cuadriparesia">Cuadriparesia</option>
+                        </select>
+                    </div>
+                    
+                    <div class="symptom-group">
+                        <label>Disartria:</label>
+                        <select id="dysarthria">
+                            <option value="">Seleccionar...</option>
+                            <option value="presente">Presente</option>
+                            <option value="ausente">Ausente</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="symptom-category">
+                    <h3>Síntomas Sensitivos</h3>
+                    <div class="symptom-group">
+                        <label>Hemihipoestesia:</label>
+                        <select id="hemihypoesthesia">
+                            <option value="">Seleccionar...</option>
+                            <option value="derecha">Hemihipoestesia derecha</option>
+                            <option value="izquierda">Hemihipoestesia izquierda</option>
+                            <option value="ausente">Ausente</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="symptom-category">
+                    <h3>Síntomas Visuales</h3>
+                    <div class="symptom-group">
+                        <label>Hemianopsia:</label>
+                        <select id="hemianopsia">
+                            <option value="">Seleccionar...</option>
+                            <option value="homonima_derecha">Hemianopsia homónima derecha</option>
+                            <option value="homonima_izquierda">Hemianopsia homónima izquierda</option>
+                            <option value="ausente">Ausente</option>
+                        </select>
+                    </div>
+                    
+                    <div class="symptom-group">
+                        <label>Diplopia:</label>
+                        <select id="diplopia">
+                            <option value="">Seleccionar...</option>
+                            <option value="presente">Presente</option>
+                            <option value="ausente">Ausente</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="symptom-category">
+                    <h3>Síntomas del Lenguaje</h3>
+                    <div class="symptom-group">
+                        <label>Afasia:</label>
+                        <select id="aphasia">
+                            <option value="">Seleccionar...</option>
+                            <option value="broca">Afasia de Broca</option>
+                            <option value="wernicke">Afasia de Wernicke</option>
+                            <option value="conduccion">Afasia de conducción</option>
+                            <option value="global">Afasia global</option>
+                            <option value="ausente">Ausente</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="symptom-category">
+                    <h3>Síntomas Cerebelosos</h3>
+                    <div class="symptom-group">
+                        <label>Ataxia:</label>
+                        <select id="ataxia">
+                            <option value="">Seleccionar...</option>
+                            <option value="derecha">Ataxia derecha</option>
+                            <option value="izquierda">Ataxia izquierda</option>
+                            <option value="truncal">Ataxia truncal</option>
+                            <option value="ausente">Ausente</option>
+                        </select>
+                    </div>
+                    
+                    <div class="symptom-group">
+                        <label>Vértigo:</label>
+                        <select id="vertigo">
+                            <option value="">Seleccionar...</option>
+                            <option value="presente">Presente</option>
+                            <option value="ausente">Ausente</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="symptom-category">
+                    <h3>Síntomas de Tronco</h3>
+                    <div class="symptom-group">
+                        <label>Parálisis facial:</label>
+                        <select id="facial_palsy">
+                            <option value="">Seleccionar...</option>
+                            <option value="central_derecha">Central derecha</option>
+                            <option value="central_izquierda">Central izquierda</option>
+                            <option value="periferica_derecha">Periférica derecha</option>
+                            <option value="periferica_izquierda">Periférica izquierda</option>
+                            <option value="ausente">Ausente</option>
+                        </select>
+                    </div>
+                    
+                    <div class="symptom-group">
+                        <label>Disfagia:</label>
+                        <select id="dysphagia">
+                            <option value="">Seleccionar...</option>
+                            <option value="presente">Presente</option>
+                            <option value="ausente">Ausente</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <button class="calculate-btn" onclick="calculateStrokeLocation()">
+                    🔍 Analizar Localización
+                </button>
+            </div>
+            
+            <div class="results-panel">
+                <h3 style="color: #2c3e50; margin-bottom: 20px; font-size: 1.5em;">Resultados del Análisis</h3>
+                <div id="results">
+                    <p style="color: #7f8c8d; text-align: center; margin-top: 50px;">
+                        Selecciona los síntomas y haz clic en "Analizar Localización" para ver los resultados.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const strokeDatabase = {
+            // Circulación anterior
+            "ACM_izquierda": {
+                name: "Arteria Cerebral Media Izquierda",
+                location: "Hemisferio izquierdo - Territorio ACM",
+                symptoms: ["hemiparesis_derecha", "hemihipoestesia_derecha", "afasia_broca", "afasia_wernicke", "afasia_global", "homonima_derecha"],
+                probability_weights: {
+                    "hemiparesis_derecha": 0.9,
+                    "hemihipoestesia_derecha": 0.8,
+                    "afasia_broca": 0.95,
+                    "afasia_wernicke": 0.95,
+                    "afasia_global": 0.9,
+                    "homonima_derecha": 0.7
+                }
+            },
+            "ACM_derecha": {
+                name: "Arteria Cerebral Media Derecha",
+                location: "Hemisferio derecho - Territorio ACM",
+                symptoms: ["hemiparesis_izquierda", "hemihipoestesia_izquierda", "homonima_izquierda"],
+                probability_weights: {
+                    "hemiparesis_izquierda": 0.9,
+                    "hemihipoestesia_izquierda": 0.8,
+                    "homonima_izquierda": 0.7
+                }
+            },
+            "ACA_izquierda": {
+                name: "Arteria Cerebral Anterior Izquierda",
+                location: "Región frontal medial y parasagital izquierda",
+                symptoms: ["monoparesis_pierna_der", "hemiparesis_derecha"],
+                probability_weights: {
+                    "monoparesis_pierna_der": 0.8,
+                    "hemiparesis_derecha": 0.6
+                }
+            },
+            "ACA_derecha": {
+                name: "Arteria Cerebral Anterior Derecha",
+                location: "Región frontal medial y parasagital derecha",
+                symptoms: ["monoparesis_pierna_izq", "hemiparesis_izquierda"],
+                probability_weights: {
+                    "monoparesis_pierna_izq": 0.8,
+                    "hemiparesis_izquierda": 0.6
+                }
+            },
+            "ACP_izquierda": {
+                name: "Arteria Cerebral Posterior Izquierda",
+                location: "Lóbulo occipital y temporal medial izquierdo",
+                symptoms: ["homonima_derecha"],
+                probability_weights: {
+                    "homonima_derecha": 0.9
+                }
+            },
+            "ACP_derecha": {
+                name: "Arteria Cerebral Posterior Derecha",
+                location: "Lóbulo occipital y temporal medial derecho",
+                symptoms: ["homonima_izquierda"],
+                probability_weights: {
+                    "homonima_izquierda": 0.9
+                }
+            },
+            // Circulación posterior
+            "Basilar": {
+                name: "Arteria Basilar",
+                location: "Tronco cerebral (puente y mesencéfalo)",
+                symptoms: ["cuadriparesia", "diplopia", "disfagia", "disartria", "ataxia_truncal", "vertigo"],
+                probability_weights: {
+                    "cuadriparesia": 0.8,
+                    "diplopia": 0.7,
+                    "disfagia": 0.7,
+                    "disartria": 0.8,
+                    "ataxia_truncal": 0.6,
+                    "vertigo": 0.6
+                }
+            },
+            "PICA_izquierda": {
+                name: "Arteria Cerebelosa Posteroinferior Izquierda",
+                location: "Cerebelo inferior izquierdo y bulbo lateral",
+                symptoms: ["ataxia_izquierda", "vertigo", "disfagia", "periferica_izquierda"],
+                probability_weights: {
+                    "ataxia_izquierda": 0.9,
+                    "vertigo": 0.8,
+                    "disfagia": 0.7,
+                    "periferica_izquierda": 0.6
+                }
+            },
+            "PICA_derecha": {
+                name: "Arteria Cerebelosa Posteroinferior Derecha",
+                location: "Cerebelo inferior derecho y bulbo lateral",
+                symptoms: ["ataxia_derecha", "vertigo", "disfagia", "periferica_derecha"],
+                probability_weights: {
+                    "ataxia_derecha": 0.9,
+                    "vertigo": 0.8,
+                    "disfagia": 0.7,
+                    "periferica_derecha": 0.6
+                }
+            },
+            "Vertebral_izquierda": {
+                name: "Arteria Vertebral Izquierda",
+                location: "Bulbo lateral izquierdo",
+                symptoms: ["ataxia_izquierda", "vertigo", "disfagia", "hemihipoestesia_derecha"],
+                probability_weights: {
+                    "ataxia_izquierda": 0.7,
+                    "vertigo": 0.8,
+                    "disfagia": 0.7,
+                    "hemihipoestesia_derecha": 0.6
+                }
+            },
+            "Vertebral_derecha": {
+                name: "Arteria Vertebral Derecha",
+                location: "Bulbo lateral derecho",
+                symptoms: ["ataxia_derecha", "vertigo", "disfagia", "hemihipoestesia_izquierda"],
+                probability_weights: {
+                    "ataxia_derecha": 0.7,
+                    "vertigo": 0.8,
+                    "disfagia": 0.7,
+                    "hemihipoestesia_izquierda": 0.6
+                }
+            }
+        };
+
+        function mapSymptoms() {
+            const symptoms = {};
+            
+            // Mapear síntomas seleccionados
+            const paresis = document.getElementById('paresis').value;
+            if (paresis) symptoms.paresis = paresis;
+            
+            const dysarthria = document.getElementById('dysarthria').value;
+            if (dysarthria === 'presente') symptoms.disartria = true;
+            
+            const hemihypoesthesia = document.getElementById('hemihypoesthesia').value;
+            if (hemihypoesthesia !== 'ausente' && hemihypoesthesia) {
+                symptoms.hemihipoestesia = hemihypoesthesia;
+            }
+            
+            const hemianopsia = document.getElementById('hemianopsia').value;
+            if (hemianopsia !== 'ausente' && hemianopsia) {
+                symptoms.hemianopsia = hemianopsia;
+            }
+            
+            const diplopia = document.getElementById('diplopia').value;
+            if (diplopia === 'presente') symptoms.diplopia = true;
+            
+            const aphasia = document.getElementById('aphasia').value;
+            if (aphasia !== 'ausente' && aphasia) {
+                symptoms.afasia = aphasia;
+            }
+            
+            const ataxia = document.getElementById('ataxia').value;
+            if (ataxia !== 'ausente' && ataxia) {
+                symptoms.ataxia = ataxia;
+            }
+            
+            const vertigo = document.getElementById('vertigo').value;
+            if (vertigo === 'presente') symptoms.vertigo = true;
+            
+            const facialPalsy = document.getElementById('facial_palsy').value;
+            if (facialPalsy !== 'ausente' && facialPalsy) {
+                symptoms.paralisis_facial = facialPalsy;
+            }
+            
+            const dysphagia = document.getElementById('dysphagia').value;
+            if (dysphagia === 'presente') symptoms.disfagia = true;
+            
+            return symptoms;
+        }
+
+        function calculateStrokeLocation() {
+            const symptoms = mapSymptoms();
+            const results = [];
+            
+            if (Object.keys(symptoms).length === 0) {
+                document.getElementById('results').innerHTML = `
+                    <div class="result-item">
+                        <h4>⚠️ Sin síntomas seleccionados</h4>
+                        <p>Por favor, selecciona al menos un síntoma para realizar el análisis.</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            // Calcular probabilidades para cada arteria
+            for (const [arteryId, arteryData] of Object.entries(strokeDatabase)) {
+                let score = 0;
+                let maxScore = 0;
+                let matchedSymptoms = [];
+                
+                // Verificar coincidencias de síntomas
+                if (symptoms.paresis && arteryData.symptoms.includes(symptoms.paresis)) {
+                    score += arteryData.probability_weights[symptoms.paresis] || 0.5;
+                    matchedSymptoms.push(getSymptomDescription(symptoms.paresis));
+                }
+                
+                if (symptoms.hemihipoestesia) {
+                    const key = symptoms.hemihipoestesia === 'derecha' ? 'hemihipoestesia_derecha' : 'hemihipoestesia_izquierda';
+                    if (arteryData.symptoms.includes(key)) {
+                        score += arteryData.probability_weights[key] || 0.5;
+                        matchedSymptoms.push(`Hemihipoestesia ${symptoms.hemihipoestesia}`);
+                    }
+                }
+                
+                if (symptoms.hemianopsia) {
+                    const key = symptoms.hemianopsia;
+                    if (arteryData.symptoms.includes(key)) {
+                        score += arteryData.probability_weights[key] || 0.5;
+                        matchedSymptoms.push(getSymptomDescription(key));
+                    }
+                }
+                
+                if (symptoms.afasia) {
+                    const key = `afasia_${symptoms.afasia}`;
+                    if (arteryData.symptoms.includes(key)) {
+                        score += arteryData.probability_weights[key] || 0.5;
+                        matchedSymptoms.push(getSymptomDescription(key));
+                    }
+                }
+                
+                if (symptoms.ataxia) {
+                    const key = symptoms.ataxia === 'truncal' ? 'ataxia_truncal' : `ataxia_${symptoms.ataxia}`;
+                    if (arteryData.symptoms.includes(key)) {
+                        score += arteryData.probability_weights[key] || 0.5;
+                        matchedSymptoms.push(`Ataxia ${symptoms.ataxia}`);
+                    }
+                }
+                
+                if (symptoms.disartria && arteryData.symptoms.includes('disartria')) {
+                    score += arteryData.probability_weights['disartria'] || 0.5;
+                    matchedSymptoms.push('Disartria');
+                }
+                
+                if (symptoms.diplopia && arteryData.symptoms.includes('diplopia')) {
+                    score += arteryData.probability_weights['diplopia'] || 0.5;
+                    matchedSymptoms.push('Diplopia');
+                }
+                
+                if (symptoms.disfagia && arteryData.symptoms.includes('disfagia')) {
+                    score += arteryData.probability_weights['disfagia'] || 0.5;
+                    matchedSymptoms.push('Disfagia');
+                }
+                
+                if (symptoms.vertigo && arteryData.symptoms.includes('vertigo')) {
+                    score += arteryData.probability_weights['vertigo'] || 0.5;
+                    matchedSymptoms.push('Vértigo');
+                }
+                
+                if (symptoms.paralisis_facial) {
+                    const key = symptoms.paralisis_facial;
+                    if (arteryData.symptoms.includes(key)) {
+                        score += arteryData.probability_weights[key] || 0.5;
+                        matchedSymptoms.push(getSymptomDescription(key));
+                    }
+                }
+                
+                if (score > 0) {
+                    const probability = Math.min(score * 100, 95); // Máximo 95%
+                    results.push({
+                        artery: arteryData.name,
+                        location: arteryData.location,
+                        probability: probability,
+                        matchedSymptoms: matchedSymptoms
+                    });
+                }
+            }
+            
+            // Ordenar por probabilidad
+            results.sort((a, b) => b.probability - a.probability);
+            
+            displayResults(results);
+        }
+        
+        function getSymptomDescription(symptom) {
+            const descriptions = {
+                'hemiparesis_derecha': 'Hemiparesia derecha',
+                'hemiparesis_izquierda': 'Hemiparesia izquierda',
+                'monoparesis_brazo_der': 'Monoparesia brazo derecho',
+                'monoparesis_brazo_izq': 'Monoparesia brazo izquierdo',
+                'monoparesis_pierna_der': 'Monoparesia pierna derecha',
+                'monoparesis_pierna_izq': 'Monoparesia pierna izquierda',
+                'cuadriparesia': 'Cuadriparesia',
+                'homonima_derecha': 'Hemianopsia homónima derecha',
+                'homonima_izquierda': 'Hemianopsia homónima izquierda',
+                'afasia_broca': 'Afasia de Broca',
+                'afasia_wernicke': 'Afasia de Wernicke',
+                'afasia_conduccion': 'Afasia de conducción',
+                'afasia_global': 'Afasia global',
+                'central_derecha': 'Parálisis facial central derecha',
+                'central_izquierda': 'Parálisis facial central izquierda',
+                'periferica_derecha': 'Parálisis facial periférica derecha',
+                'periferica_izquierda': 'Parálisis facial periférica izquierda'
+            };
+            return descriptions[symptom] || symptom;
+        }
+        
+        function displayResults(results) {
+            const resultsDiv = document.getElementById('results');
+            
+            if (results.length === 0) {
+                resultsDiv.innerHTML = `
+                    <div class="result-item">
+                        <h4>🤔 No se encontraron coincidencias claras</h4>
+                        <p>Los síntomas seleccionados no corresponden a un patrón típico de territorio vascular específico. Considere:</p>
+                        <ul style="margin-top: 10px; padding-left: 20px;">
+                            <li>Ictus lacunar</li>
+                            <li>Múltiples territorios vasculares</li>
+                            <li>Otra etiología no vascular</li>
+                        </ul>
+                    </div>
+                `;
+                return;
+            }
+            
+            let html = '';
+            
+            results.slice(0, 3).forEach((result, index) => {
+                const probabilityColor = result.probability > 70 ? '#27ae60' : result.probability > 50 ? '#f39c12' : '#e74c3c';
+                
+                html += `
+                    <div class="result-item">
+                        <h4>${index + 1}. ${result.artery}</h4>
+                        <p><strong>Localización:</strong> ${result.location}</p>
+                        <p><strong>Probabilidad:</strong> <span class="probability" style="color: ${probabilityColor}">${result.probability.toFixed(1)}%</span></p>
+                        <p><strong>Síntomas coincidentes:</strong> ${result.matchedSymptoms.join(', ')}</p>
+                    </div>
+                `;
+            });
+            
+            html += `
+                <div class="warning" style="margin-top: 20px;">
+                    <h4>📝 Recomendaciones clínicas</h4>
+                    <p>• Confirmar con neuroimagen (TC/RM craneal)<br>
+                    • Evaluar ventana terapéutica<br>
+                    • Considerar diagnósticos diferenciales<br>
+                    • Valoración por neurología urgente</p>
+                </div>
+            `;
+            
+            resultsDiv.innerHTML = html;
+        }
+    </script>
+</body>
+</html>
